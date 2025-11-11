@@ -1,0 +1,15 @@
+# This file contains all the output directories where the processed data is stored by the main running script
+
+#### DO NOT CHANGE THE VARIABLE NAMES ####
+
+# Level 1A output direcotry
+# Level1A_dir: "c:/Users/Shadow/Documents/Localwork/renku_all/renku_ppmooring/ppmooring/data/Level1A"
+Level1A_dir: "../renku_ppmooring/ppmooring/data/Level1A"
+
+# Level 1B output direcotry
+# Level1B_dir: "c:/Users/Shadow/Documents/Localwork/renku_all/renku_ppmooring/ppmooring/data/Level1B"
+Level1B_dir: "../renku_ppmooring/ppmooring/data/Level1B"
+
+# Level 2 output direcotry
+# Level2_dir: "c:/Users/Shadow/Documents/Localwork/renku_all/renku_ppmooring/ppmooring/data/Level2"
+Level2_dir: "../renku_ppmooring/ppmooring/data/Level2"
