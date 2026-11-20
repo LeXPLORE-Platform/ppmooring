@@ -1,11 +1,19 @@
-netCDF4==1.5.4
-pandas==1.1.0
-numpy==1.19.1
-PyYAML==5.3.1
-matplotlib==3.3.0
-tqdm==4.50.0
-tsmoothie==0.2.0
-scipy==1.5.2
-sklearn==0.0
+# Versions tested with Python 3.14 (test suite: python -m pytest ppmooring).
 
+# Pipeline: scripts/main_ppmooring.py and the modules it imports
+numpy==2.4.2
+pandas==3.0.1
+netCDF4==1.7.4
+PyYAML==6.0.3
+openpyxl==3.1.5
+tqdm==4.67.3
 
+# Tests
+pytest==9.2.0
+
+# Analysis and plotting scripts in scripts/ (not needed by the pipeline)
+matplotlib==3.10.8
+scipy==1.17.1
+scikit-learn==1.8.0
+tsmoothie==1.0.5
+pwlf==2.5.2

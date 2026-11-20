@@ -234,7 +234,6 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 
@@ -382,3 +381,6 @@ tags
 data/*
 !data/.gitkeep
 !data/README.md
+
+# Run log of main_ppmooring.py (console output of each run); the processed-file logs log/logfile*.log are tracked
+log/pipeline_run.log
