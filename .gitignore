@@ -384,3 +384,5 @@ data/*
 
 # Run log of main_ppmooring.py (console output of each run); the processed-file logs log/logfile*.log are tracked
 log/pipeline_run.log
+
+.idea
