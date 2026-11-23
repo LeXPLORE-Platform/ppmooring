@@ -169,8 +169,69 @@ def test_maintenance(timestamps: ArrayLike, maintenance_df: Optional[pd.DataFram
     for _, row in maintenance_df.iterrows():
         window_mask = (timestamps >= row["debut"]) & (timestamps <= row["end"])
         mask |= window_mask
-    
+
     return mask
+
+
+def load_out_of_water_windows(path, sensor: str) -> pd.DataFrame:
+    """
+    Read the checked out-of-water windows of one sensor (``scripts/out_of_water_periods.csv``).
+
+    The file lists periods when a sensor was out of the water and kept logging, found
+    with ``scripts/tools/propose_out_of_water_periods.py`` and checked by hand. They
+    are masked like the maintenance windows of ``PAR_maintenance.csv``, which do not
+    cover the visits before 2020-08-11.
+
+    Parameters
+    ----------
+    path : str or Path
+        Semicolon-separated file with columns ``sensor``, ``start_utc``, ``end_utc``;
+        lines starting with ``#`` are comments. Times are UTC.
+    sensor : str
+        ``DO``, ``PAR`` or ``Temperature``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns ``debut`` and ``end`` in Unix seconds, as ``test_maintenance`` expects.
+        Empty when the file is missing or has no row for this sensor.
+    """
+    empty = pd.DataFrame({"debut": pd.Series(dtype=float), "end": pd.Series(dtype=float)})
+    path = Path(path)
+    if not path.exists():
+        logger.warning("Out-of-water windows file not found: %s", path)
+        return empty
+
+    table = pd.read_csv(path, sep=";", comment="#", dtype=str)
+    missing = {"sensor", "start_utc", "end_utc"} - set(table.columns)
+    if missing:
+        raise ValueError(f"{path}: missing columns {sorted(missing)}")
+    table = table[table["sensor"].str.strip() == sensor]
+    if table.empty:
+        return empty
+
+    epoch = pd.Timestamp("1970-01-01", tz="UTC")
+    start = (pd.to_datetime(table["start_utc"], utc=True) - epoch) / pd.Timedelta(seconds=1)
+    end = (pd.to_datetime(table["end_utc"], utc=True) - epoch) / pd.Timedelta(seconds=1)
+    if (end < start).any():
+        raise ValueError(f"{path}: a {sensor} window ends before it starts")
+    return pd.DataFrame({"debut": start.to_numpy(dtype=float), "end": end.to_numpy(dtype=float)})
+
+
+def add_out_of_water_windows(maintenance_df: Optional[pd.DataFrame], sensor: str,
+                             path=None) -> Optional[pd.DataFrame]:
+    """Return the maintenance windows plus the out-of-water windows of ``sensor``.
+
+    ``path`` defaults to ``scripts/out_of_water_periods.csv`` of the configuration.
+    """
+    if path is None:
+        path = get_config().maintenance_files['out_of_water']
+    extra = load_out_of_water_windows(path, sensor)
+    if extra.empty:
+        return maintenance_df
+    if maintenance_df is None or len(maintenance_df) == 0:
+        return extra
+    return pd.concat([maintenance_df[["debut", "end"]], extra], ignore_index=True)
 
 
 def test_climatological_range(values: ArrayLike, timestamps: ArrayLike,
@@ -2410,6 +2471,9 @@ class Temperature_data(ppmooring):
         # Try self.maintenance if available (set by main_ppmooring.py)
         if maintenance_df is None and hasattr(self, 'maintenance'):
             maintenance_df = self.maintenance
+
+        # Periods out of the water, checked by hand (scripts/out_of_water_periods.csv)
+        maintenance_df = add_out_of_water_windows(maintenance_df, 'Temperature')
 
         # Run Temperature tests
         qc_flags, qual, flag_details = apply_temperature_tests(
