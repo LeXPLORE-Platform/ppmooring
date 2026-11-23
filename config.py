@@ -122,7 +122,8 @@ class Config:
         scripts = self.scripts_path
         return {
             'par_maintenance': scripts / 'PAR_maintenance.csv',
-            'border_values': scripts / 'border_value_lower.csv'
+            'border_values': scripts / 'border_value_lower.csv',
+            'out_of_water': scripts / 'out_of_water_periods.csv'
         }
     
     def get_sensor_data_path(self, level: str, sensor_type: str, depth: Optional[str] = None) -> Path:

@@ -1,0 +1,22 @@
+# Periods when a sensor was out of the water, masked by the quality control as maintenance.
+# Read by load_out_of_water_windows() in ppmooring.py, in addition to PAR_maintenance.csv, for the temperature string.
+# Times are UTC (the Unix time of the Level 1A files). A window covers start_utc to end_utc, both included.
+# Temperature rows: proposed by scripts/tools/propose_out_of_water_periods.py on 2026-11-23; review figure: output/out_of_water_review/proposed_windows.png. Ends of events 6, 9 and 11 moved later by hand after the first reprocessing (upper sensors re-immersed after the bottom one).
+# Only the Temperature quality control reads this file (DO and PAR are left as they are). A row applies to every depth of its sensor.
+sensor;start_utc;end_utc;event;evidence
+Temperature;2018-10-11 07:45;2018-10-11 11:50;1;"string out of water: bottom 10.5 to 22.6 degC, median spread over depths 1.13 degC; Level 0 dates: 2018-10-11"
+Temperature;2018-11-20 11:25;2018-11-22 11:05;2;"string out of water: bottom 5.9 to 25.0 degC, median spread over depths 0.13 degC; Level 0 dates: 2018-11-20, 2018-11-22"
+Temperature;2018-12-17 11:20;2018-12-19 09:35;3;"string out of water: bottom 7.1 to 20.3 degC, median spread over depths 0.34 degC; Level 0 dates: 2018-12-17, 2018-12-18, 2018-12-19"
+Temperature;2019-01-29 08:25;2019-01-29 16:30;4;"string out of water: bottom 3.9 to 19.0 degC, median spread over depths 1.62 degC; Level 0 dates: 2019-01-29"
+Temperature;2019-02-28 07:45;2019-02-28 13:30;5;"string out of water: bottom 6.6 to 21.3 degC, median spread over depths 2.65 degC; Level 0 dates: 2019-02-28"
+Temperature;2019-04-16 09:05;2019-04-18 10:45;6;"string out of water: bottom 7.4 to 25.8 degC, median spread over depths 0.62 degC; Level 0 dates: 2019-04-17, 2019-04-18; end moved by hand from 09:50 to 10:45: upper sensors back in the water after the 30 m sensor"
+Temperature;2019-06-04 07:40;2019-06-05 09:40;7;"string out of water: bottom 9.2 to 35.4 degC, median spread over depths 1.36 degC; Level 0 dates: 2019-06-04, 2019-06-05"
+Temperature;2019-07-09 05:55;2019-07-10 09:05;8;"string out of water: bottom 9.0 to 35.1 degC, median spread over depths 0.54 degC; Level 0 dates: 2019-07-09, 2019-07-10"
+Temperature;2019-08-14 06:10;2019-08-20 10:40;9;"string out of water: bottom 9.0 to 29.6 degC, median spread over depths 0.30 degC; Level 0 dates: 2019-08-14, 2019-08-20; end moved by hand from 10:30 to 10:40: upper sensors back in the water after the 30 m sensor"
+Temperature;2019-10-08 06:05;2019-10-22 23:30;10;"string out of water: bottom 9.1 to 22.8 degC, median spread over depths 0.14 degC; Level 0 dates: 2019-10-09, 2019-10-15, 2019-10-16, 2019-10-22"
+Temperature;2019-12-10 13:40;2019-12-18 11:05;11;"string out of water: bottom 9.0 to 21.0 degC, median spread over depths 0.48 degC; Level 0 dates: 2019-12-11; end moved by hand from 10:40 to 11:05: upper sensors back in the water after the 30 m sensor"
+Temperature;2020-02-13 09:05;2020-02-20 09:50;12;"string out of water: bottom 2.9 to 19.9 degC, median spread over depths 0.14 degC; Level 0 dates: 2020-02-13, 2020-02-14"
+Temperature;2020-04-07 05:25;2020-04-07 10:40;13;"string out of water: bottom 7.7 to 22.7 degC, median spread over depths 3.16 degC; Level 0 dates: none"
+Temperature;2020-05-27 06:10;2020-06-03 08:15;14;"string out of water: bottom 8.0 to 43.3 degC, median spread over depths 0.23 degC; Level 0 dates: 2020-05-27, 2020-05-28"
+Temperature;2020-07-08 07:15;2020-07-13 11:55;15;"string out of water: bottom 8.2 to 45.4 degC, median spread over depths 0.23 degC; Level 0 dates: 2020-07-09"
+Temperature;2020-08-10 08:05;2020-08-10 12:50;16;"string out of water: bottom 10.6 to 30.0 degC, median spread over depths 1.13 degC; Level 0 dates: 2020-08-10"
