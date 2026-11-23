@@ -1,0 +1,136 @@
+# =============================================================================
+# QC Configuration for PPMooring Dissolved Oxygen (DO) Pipeline
+# =============================================================================
+# All thresholds are documented and centralized here.
+# No magic numbers in the code — every parameter is traceable.
+#
+# Flag bits (stored in O2_qc integer array):
+#   bit 0 (1):  Range test
+#   bit 1 (2):  Maintenance mask
+#   bit 2 (4):  Climatological range
+#   bit 3 (8):  Spike test
+#   bit 4 (16): Gradient test
+#   bit 5 (32): Flat-line test
+# =============================================================================
+
+DO:
+  # ── Test 1: Range test ──────────────────────────────────────────────
+  # Hard physical limits. Any value outside is unambiguously wrong.
+  range_test:
+    min: 0.0           # mgO2/L — water cannot have negative DO
+    max: 25.0          # mgO2/L — above this is instrument error (supersaturation ~300%)
+
+  # ── Test 2: Maintenance mask ────────────────────────────────────────
+  # Uses deployment boundaries from calibration Excel file.
+  # Windows are computed automatically in main_ppmooring.py.
+  maintenance_mask:
+    source: "PAR_maintenance.csv"    # file with debut;end columns (unix timestamps)
+    buffer_hours: 12                 # ±hours around each deployment boundary
+
+  # ── Test 3: Climatological range ────────────────────────────────────
+  # Month- and depth-specific expected range from historical data.
+  climatological_range:
+    source: "border_value_lower.csv"   # file with month;min_depth;min;max columns
+    min_margin: 0.95                   # multiply min by this (widen range slightly)
+    max_margin: 1.20                   # multiply max by this (widen range slightly)
+
+  # ── Test 4: Spike test ──────────────────────────────────────────────
+  # A spike is a short, sharp deviation that returns to baseline.
+  # Definition: |v[i] - 0.5*(v[i-1]+v[i+1])| > threshold
+  # AND neighbors agree: |v[i-1] - v[i+1]| < threshold
+  # This distinguishes spikes from legitimate step changes.
+  spike_test:
+    threshold: 3.0     # mgO2/L — max deviation from neighbors to flag as spike
+    window: 1          # number of neighbors on each side (1 = use v[i-1] and v[i+1])
+
+  # ── Test 5: Gradient test ───────────────────────────────────────────
+  # Maximum rate of change. Biological DO changes rarely exceed ~2 mg/L/hour
+  # at any depth. Faster changes indicate sensor artifact.
+  gradient_test:
+    max_rate: 5.0      # mgO2/L per hour — max allowed |dO2/dt|
+
+  # ── Test 6: Flat-line test ──────────────────────────────────────────
+  # Consecutive identical (within tolerance) values indicate sensor failure.
+  flatline_test:
+    tolerance: 0.001   # mgO2/L — values within this are considered "identical"
+    min_count: 20      # minimum consecutive identical values to flag
+
+# =============================================================================
+# QC Configuration for PAR (Photosynthetically Active Radiation)
+# =============================================================================
+# PAR only needs maintenance masking — physical signals are highly variable
+# and statistical filters are inappropriate.
+#
+# Flag bits:
+#   bit 0 (1):  Range test
+#   bit 1 (2):  Maintenance mask
+# =============================================================================
+
+PAR:
+  # ── Test 1: Range test ──────────────────────────────────────────────
+  # Hard physical limits. Negative PAR is impossible, very high values
+  # indicate sensor saturation or malfunction.
+  range_test:
+    min: 0.0           # µmol/m²/s — PAR cannot be negative
+    max: 5000.0        # µmol/m²/s — above this is instrument error
+    # Depth-specific max thresholds (more restrictive at depth)
+    depth_max:
+      50: 2000
+      250: 2000
+      500: 1500
+      1000: 1000
+      2000: 50
+      3000: 30
+
+  # ── Test 2: Maintenance mask ────────────────────────────────────────
+  maintenance_mask:
+    source: "PAR_maintenance.csv"
+    buffer_hours: 12
+
+# =============================================================================
+# QC Configuration for Temperature
+# =============================================================================
+# Temperature is physically well-constrained in Lake Geneva.
+# We use: range, maintenance, gradient, spike, flat-line tests.
+#
+# Flag bits:
+#   bit 0 (1):  Range test
+#   bit 1 (2):  Maintenance mask
+#   bit 3 (8):  Spike test
+#   bit 4 (16): Gradient test
+#   bit 5 (32): Flat-line test
+# =============================================================================
+
+Temperature:
+  # ── Test 1: Range test ──────────────────────────────────────────────
+  # Lake Geneva temperature range depends on depth.
+  # Surface: 4–30°C (summer surface can reach ~27°C)
+  # Deep (100m): 4–8°C (permanently cold hypolimnion)
+  range_test:
+    min: 3.5           # °C — default minimum (just below 4°C to allow margin)
+    max: 35.0          # °C — default maximum
+    
+
+  # ── Test 2: Maintenance mask ────────────────────────────────────────
+  maintenance_mask:
+    source: "PAR_maintenance.csv"
+    buffer_hours: 12
+
+  # ── Test 3: Spike test ──────────────────────────────────────────────
+  # Temperature spikes are rare and indicate sensor malfunction.
+  # Real temperature changes are gradual (thermal inertia of water).
+  spike_test:
+    threshold: 2.0     # °C — max deviation from neighbors
+    window: 1
+
+  # ── Test 4: Gradient test ───────────────────────────────────────────
+  # Water temperature changes slowly due to high heat capacity.
+  # Even strong surface warming rarely exceeds 1°C/hour.
+  gradient_test:
+    max_rate: 2.0      # °C per hour — max allowed |dT/dt|
+
+  # ── Test 5: Flat-line test ──────────────────────────────────────────
+  # Consecutive identical readings indicate sensor failure.
+  flatline_test:
+    tolerance: 0.001   # °C — values within this are considered "identical"
+    min_count: 30      # minimum consecutive identical values to flag
